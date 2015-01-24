@@ -1,10 +1,14 @@
 // Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
 #include "RoboRunners.h"
 #include "Monster.h"
+#include "Robot.h"
 
 AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	StunValue = 5;
+	StartStunValue = 5;
+	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -22,6 +26,7 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
+	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = ObjectInitializer.CreateDefaultSubobject<USpringArmComponent>(this, TEXT("CameraBoom"));
@@ -36,22 +41,63 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+	
+	
+}
+
+void AMonster::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	EMonsterState PrevState = MonsterState;
+
+	switch (HittingRobots.Num())
+	{
+	case 3:
+		MonsterState = EMonsterState::DAMAGE;
+		StunValue = 4.0f;
+		break;
+	case 2:
+		MonsterState = EMonsterState::STUN;
+		StunValue = 3.0f;
+		break;
+	case 1:
+		MonsterState = EMonsterState::STUN;
+		StunValue = 1.5f;
+		break;
+	case 0:
+		MonsterState = EMonsterState::NONE;
+		StunValue = StartStunValue;
+		break;
+	}
+
+	switch (MonsterState)
+	{
+	case EMonsterState::DAMAGE:
+		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed / StunValue;
+		break;
+	case EMonsterState::GAIN:
+
+		break;
+	case EMonsterState::STUN:
+		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed / StunValue;
+		break;
+	case EMonsterState::NONE:
+		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+		break;
+	}
 }
 
 void AMonster::LaserHit(ARobot* RobotActor, const FHitResult& HitResult)
 {
-	//if (HittingRobots.Find(RobotActor))
-	//{
-	//	HittingRobots.Add(RobotActor);
-	//}
+	if (/*RobotActor->ElementColor == ElementColor && */HittingRobots.Find(RobotActor))
+	{
+		HittingRobots.Add(RobotActor);
+	}
 }
 
 void AMonster::RemoveLaserHit(ARobot* RobotActor)
 {
-	/*if (HittingRobots.Find(RobotActor))
-	{
-		HittingRobots.RemoveSingle(RobotActor);
-	}*/
+	HittingRobots.RemoveSingle(RobotActor);
 }
 
 void AMonster::SetupPlayerInputComponent(class UInputComponent* InputComponent)
@@ -90,4 +136,9 @@ void AMonster::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AMonster::Bash()
+{
+	//GetCharacterMovement()->AddImpulse();
 }

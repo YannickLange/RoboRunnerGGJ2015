@@ -4,4 +4,4 @@
 
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, RoboRunners, "RoboRunners" );
- 
+DEFINE_LOG_CATEGORY(GGJ)

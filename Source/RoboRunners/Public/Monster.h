@@ -3,6 +3,16 @@
 #include "GameFramework/Character.h"
 #include "Monster.generated.h"
 
+UENUM(BlueprintType)		//"BlueprintType" is essential to include
+enum class EMonsterState : uint8
+{
+	DAMAGE 	UMETA(DisplayName = "DAMAGE"),
+	STUN 	UMETA(DisplayName = "STUN"),
+	GAIN	UMETA(DisplayName = "GAIN"),
+	NONE 	UMETA(DisplayName = "NONE")
+};
+
+
 UCLASS(config = Game)
 class AMonster : public ACharacter
 {
@@ -15,6 +25,8 @@ class AMonster : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	virtual void Tick(float DeltaSeconds);
 public:
 	AMonster(const FObjectInitializer& ObjectInitializer);
 
@@ -32,12 +44,26 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ElementColor)
 	FColor ElementColor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = HittingRobots)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Robots)
 	TArray<class ARobot*> HittingRobots;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Robots)
+	TArray<class ARobot*> GainRobots;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
+	float StunValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
+	float MaxWalkSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Enum)
+	EMonsterState MonsterState;
+
+	
 protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+	void Bash();
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 public:
@@ -45,5 +71,8 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+	float StartStunValue;
 };
 

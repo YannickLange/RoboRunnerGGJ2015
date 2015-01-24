@@ -3,6 +3,7 @@
 #include "RoboRunners.h"
 #include "Robot.h"
 #include "Monster.h"
+#include "EngineUtils.h"
 
 ARobot::ARobot(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -28,6 +29,14 @@ ARobot::ARobot(const FObjectInitializer& ObjectInitializer)
 	AimDistance = 4000.0f;
 	AimStartDistance = 150.0f;
 	bIsHittingMonster = false;
+}
+
+void ARobot::BeginPlay()
+{
+	for (TActorIterator<AMonster> MonsterItr(GetWorld()); MonsterItr; ++MonsterItr)
+	{
+		Monster = (*MonsterItr);
+	}
 }
 
 void ARobot::Tick(float DeltaSeconds)
@@ -109,23 +118,38 @@ void ARobot::TickLaser(float DeltaSeconds)
 	FCollisionObjectQueryParams CollisionObjectParams;
 	if (GetWorld()->LineTraceSingle(HitResult, AimWorldLocation + (AimStartDistance * Direction), AimEndLocation, CollisionParams, CollisionObjectParams))
 	{
-		if (HitResult.GetActor())
+		if (HitResult.GetActor()->GetActorClass()->IsChildOf(Monster->StaticClass()))
 		{
-			if (HitResult.GetActor()->GetClass()->IsChildOf(AMonster::StaticClass()) && !bIsHittingMonster)
+			if (!bIsHittingMonster)
 			{
-				//Spawn particle
-				Cast<AMonster>(HitResult.GetActor())->LaserHit(this, HitResult);
+				Monster->LaserHit(this, HitResult);
 				bIsHittingMonster = true;
-			}
-			else
-			{
-				bIsHittingMonster = false;
-				Cast<AMonster>(HitResult.GetActor())->RemoveLaserHit(this);
+				UE_LOG(GGJ, Log, TEXT("hitting monster"));
 			}
 		}
+		else
+		{
+			if (bIsHittingMonster)
+			{
+				Monster->RemoveLaserHit(this);
+				bIsHittingMonster = false;
+				UE_LOG(GGJ, Log, TEXT("not hitting monster"));
+			}
+		}
+		
 		
 		// Hit
 		AimEndLocation = HitResult.ImpactPoint;
 	}
+	else
+	{
+		if (bIsHittingMonster)
+		{
+			UE_LOG(GGJ, Log, TEXT("not hitting monster"));
+			Monster->RemoveLaserHit(this);
+			bIsHittingMonster = false;
+		}
+	}
+
 }
 

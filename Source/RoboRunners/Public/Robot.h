@@ -14,6 +14,7 @@ class ROBORUNNERS_API ARobot : public ACharacter
 	GENERATED_BODY()
 
 		virtual void Tick(float DeltaSeconds);
+	virtual void BeginPlay();
 public:
 	ARobot(const FObjectInitializer& ObjectInitializer);
 
@@ -43,8 +44,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ElementColor)
 		FColor ElementColor;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = RobotAim)
-		bool bIsHittingMonster;
 protected:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -59,6 +58,8 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
+	class AMonster* Monster;
+	bool bIsHittingMonster;
 private:
 	void TickLaser(float DeltaSeconds);
 };
