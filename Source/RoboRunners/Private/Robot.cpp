@@ -14,6 +14,7 @@ ARobot::ARobot(const FObjectInitializer& ObjectInitializer)
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
+	GetCharacterMovement()->MaxWalkSpeed = 400;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;

@@ -59,7 +59,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Enum)
 	EMonsterState MonsterState;
 
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
+	float Health;
 protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);

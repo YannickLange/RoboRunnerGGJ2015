@@ -8,13 +8,15 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 {
 	StunValue = 5;
 	StartStunValue = 5;
-	
+	Health = 100;
+	MaxWalkSpeed = 250;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
+	BaseTurnRate = 20.f;
+	BaseLookUpRate = 20.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -26,7 +28,7 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
-	MaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = ObjectInitializer.CreateDefaultSubobject<USpringArmComponent>(this, TEXT("CameraBoom"));
@@ -41,8 +43,6 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-	
-	
 }
 
 void AMonster::Tick(float DeltaSeconds)
@@ -54,6 +54,7 @@ void AMonster::Tick(float DeltaSeconds)
 	{
 	case 3:
 		MonsterState = EMonsterState::DAMAGE;
+		Health -= DeltaSeconds * 4;
 		StunValue = 4.0f;
 		break;
 	case 2:
@@ -89,7 +90,7 @@ void AMonster::Tick(float DeltaSeconds)
 
 void AMonster::LaserHit(ARobot* RobotActor, const FHitResult& HitResult)
 {
-	if (/*RobotActor->ElementColor == ElementColor && */HittingRobots.Find(RobotActor))
+	if (RobotActor->ElementColor == ElementColor && HittingRobots.Find(RobotActor))
 	{
 		HittingRobots.Add(RobotActor);
 	}
@@ -140,7 +141,6 @@ void AMonster::MoveRight(float Value)
 
 void AMonster::Bash()
 {
-	//GetCharacterMovement()->AddForce(FVector(10000, 0, 0));
 	// find out which way is forward
 	const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
 
