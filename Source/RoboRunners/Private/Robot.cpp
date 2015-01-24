@@ -29,6 +29,7 @@ ARobot::ARobot(const FObjectInitializer& ObjectInitializer)
 	AimDistance = 4000.0f;
 	AimStartDistance = 150.0f;
 	bIsHittingMonster = false;
+	bIsShooting = false;
 }
 
 void ARobot::BeginPlay()
@@ -55,6 +56,8 @@ void ARobot::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	InputComponent->BindAxis("MoveRight", this, &ARobot::MoveRight);
 	InputComponent->BindAxis("AimX", this, &ARobot::AimX);
 	InputComponent->BindAxis("AimY", this, &ARobot::AimY);
+	InputComponent->BindAction("Shoot", EInputEvent::IE_Pressed, this, &ARobot::ShootStart);
+	InputComponent->BindAction("Shoot", EInputEvent::IE_Released, this, &ARobot::ShootStop);
 }
 
 
@@ -97,8 +100,19 @@ void ARobot::AimY(float Value)
 	AimLocation.Y = Value;
 }
 
+void ARobot::ShootStart()
+{
+	bIsShooting = true;
+}
+
+void ARobot::ShootStop()
+{
+	bIsShooting = false;
+}
+
 void ARobot::TickLaser(float DeltaSeconds)
 {
+
 	if (AimLocation.X == 0 && AimLocation.Y == 0)
 	{
 		return;
@@ -111,43 +125,46 @@ void ARobot::TickLaser(float DeltaSeconds)
 	FVector Direction = GetActorLocation() - AimWorldLocation;
 	Direction.Normalize();
 
-	AimEndLocation = AimWorldLocation + AimDistance * Direction;
-
-	FHitResult HitResult;
-	FCollisionQueryParams CollisionParams;
-	FCollisionObjectQueryParams CollisionObjectParams;
-	if (GetWorld()->LineTraceSingle(HitResult, AimWorldLocation + (AimStartDistance * Direction), AimEndLocation, CollisionParams, CollisionObjectParams))
+	if (bIsShooting)
 	{
-		if (HitResult.GetActor()->GetActorClass()->IsChildOf(Monster->StaticClass()))
+		AimEndLocation = AimWorldLocation + AimDistance * Direction;
+
+		FHitResult HitResult;
+		FCollisionQueryParams CollisionParams;
+		FCollisionObjectQueryParams CollisionObjectParams;
+		if (GetWorld()->LineTraceSingle(HitResult, AimWorldLocation + (AimStartDistance * Direction), AimEndLocation, CollisionParams, CollisionObjectParams))
 		{
-			if (!bIsHittingMonster)
+			if (HitResult.GetActor()->GetActorClass()->IsChildOf(Monster->StaticClass()))
 			{
-				Monster->LaserHit(this, HitResult);
-				bIsHittingMonster = true;
-				UE_LOG(GGJ, Log, TEXT("hitting monster"));
+				if (!bIsHittingMonster)
+				{
+					Monster->LaserHit(this, HitResult);
+					bIsHittingMonster = true;
+					UE_LOG(GGJ, Log, TEXT("hitting monster"));
+				}
 			}
+			else
+			{
+				if (bIsHittingMonster)
+				{
+					Monster->RemoveLaserHit(this);
+					bIsHittingMonster = false;
+					UE_LOG(GGJ, Log, TEXT("not hitting monster"));
+				}
+			}
+
+
+			// Hit
+			AimEndLocation = HitResult.ImpactPoint;
 		}
 		else
 		{
 			if (bIsHittingMonster)
 			{
+				UE_LOG(GGJ, Log, TEXT("not hitting monster"));
 				Monster->RemoveLaserHit(this);
 				bIsHittingMonster = false;
-				UE_LOG(GGJ, Log, TEXT("not hitting monster"));
 			}
-		}
-		
-		
-		// Hit
-		AimEndLocation = HitResult.ImpactPoint;
-	}
-	else
-	{
-		if (bIsHittingMonster)
-		{
-			UE_LOG(GGJ, Log, TEXT("not hitting monster"));
-			Monster->RemoveLaserHit(this);
-			bIsHittingMonster = false;
 		}
 	}
 

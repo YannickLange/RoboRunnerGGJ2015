@@ -104,7 +104,7 @@ void AMonster::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	// Set up gameplay key bindings
 	check(InputComponent);
-
+	InputComponent->BindAction("Bash", EInputEvent::IE_Pressed, this, &AMonster::Bash);
 	InputComponent->BindAxis("MoveForward", this, &AMonster::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AMonster::MoveRight);
 }
@@ -140,5 +140,14 @@ void AMonster::MoveRight(float Value)
 
 void AMonster::Bash()
 {
-	//GetCharacterMovement()->AddImpulse();
+	//GetCharacterMovement()->AddForce(FVector(10000, 0, 0));
+	// find out which way is forward
+	const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
+
+	// get forward vector
+	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+	FVector BashVector = YawRotation.Vector() * 10;
+	LaunchCharacter(BashVector, true, true);
+	UE_LOG(GGJ, Log, TEXT("BASH!!!"));
 }

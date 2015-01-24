@@ -44,6 +44,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = ElementColor)
 		FColor ElementColor;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RobotAim)
+	bool bIsShooting;
 protected:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -53,6 +55,8 @@ protected:
 
 	void AimX(float Value);
 	void AimY(float Value);
+	void ShootStart();
+	void ShootStop();
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
@@ -62,4 +66,5 @@ protected:
 	bool bIsHittingMonster;
 private:
 	void TickLaser(float DeltaSeconds);
+
 };
