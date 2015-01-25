@@ -9,14 +9,16 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 	StunValue = 5;
 	StartStunValue = 5;
 	Health = 100;
-	MaxWalkSpeed = 250;
+	MaxWalkSpeed = 270;
+	BashTime = 0.8f;
+	BashStartTime = BashTime;
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
-	BaseTurnRate = 20.f;
-	BaseLookUpRate = 20.f;
+	BaseTurnRate = 10.f;
+	BaseLookUpRate = 10.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -25,7 +27,7 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 200.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.2f;
 	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
@@ -86,6 +88,9 @@ void AMonster::Tick(float DeltaSeconds)
 		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 		break;
 	}
+
+	BashTime -= DeltaSeconds;
+
 }
 
 void AMonster::LaserHit(ARobot* RobotActor, const FHitResult& HitResult)
@@ -141,13 +146,17 @@ void AMonster::MoveRight(float Value)
 
 void AMonster::Bash()
 {
-	// find out which way is forward
-	const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
+	if (BashTime <= 0)
+	{
+		BashTime = BashStartTime;
+		// find out which way is forward
+		const FRotator YawRotation(0, GetActorRotation().Yaw, 0);
 
-	// get forward vector
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		// get forward vector
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-	FVector BashVector = YawRotation.Vector() * 10;
-	LaunchCharacter(BashVector, true, true);
-	UE_LOG(GGJ, Log, TEXT("BASH!!!"));
+		FVector BashVector = YawRotation.Vector() * 1300;
+		LaunchCharacter(BashVector, true, true);
+		UE_LOG(GGJ, Log, TEXT("BASH!!!"));
+	}
 }

@@ -67,4 +67,6 @@ protected:
 private:
 	void TickLaser(float DeltaSeconds);
 
+	FVector PrevLocation;
+
 };
