@@ -64,6 +64,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
 	float BashTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
+	float SpawnRadius;
 protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);

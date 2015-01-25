@@ -2,6 +2,7 @@
 #include "RoboRunnersGameMode.h"
 #include "Monster.h"
 #include "Robot.h"
+#include "EngineUtils.h"
 
 ARoboRunnersGameMode::ARoboRunnersGameMode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -26,4 +27,18 @@ void ARoboRunnersGameMode::BeginPlay()
 	Viewport->CreatePlayer(1, OutError, true);
 	Viewport->CreatePlayer(2, OutError, true);
 	Viewport->CreatePlayer(3, OutError, true);
+}
+
+void ARoboRunnersGameMode::Tick(float DeltaSeconds)
+{
+	//float MinRecentTime = 5.0f;
+	////Iterate Over Actors
+	//for (TActorIterator<ARobot> Itr(GetWorld()); Itr; ++Itr)
+	//{
+	//	float render = (*Itr)->GetLastRenderTime();
+	//	if (render < MinRecentTime)
+	//	{
+	//		(*Itr)->OutOfViewTime -= DeltaSeconds;
+	//	}
+	//}
 }
