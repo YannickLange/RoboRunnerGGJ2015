@@ -55,6 +55,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RobotAim)
 	class AMonster* Monster;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RobotAim)
+	bool bIsHittingMonster;
 protected:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -72,7 +75,7 @@ protected:
 	// End of APawn interface
 
 	
-	bool bIsHittingMonster;
+	
 private:
 	void TickLaser(float DeltaSeconds);
 	//void TickOutOfView(float DeltaSeconds);
