@@ -45,7 +45,16 @@ public:
 		FColor ElementColor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RobotAim)
-	bool bIsShooting;
+	bool bIsShooting;	
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = RobotAim)
+	float OutOfViewTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RobotAim)
+	float OutOfViewStartTime;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = RobotAim)
+	class AMonster* Monster;
 protected:
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -62,11 +71,13 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
 
-	class AMonster* Monster;
+	
 	bool bIsHittingMonster;
 private:
 	void TickLaser(float DeltaSeconds);
+	//void TickOutOfView(float DeltaSeconds);
+	//void Respawn();
 
 	FVector PrevLocation;
-
+	
 };

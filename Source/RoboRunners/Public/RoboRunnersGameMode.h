@@ -11,6 +11,7 @@ class ARoboRunnersGameMode : public AGameMode
 
 
 	virtual void BeginPlay();
+	virtual void Tick(float DeltaSeconds);
 public:
 	ARoboRunnersGameMode(const FObjectInitializer& ObjectInitializer);	
 	

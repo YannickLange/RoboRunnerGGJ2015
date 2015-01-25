@@ -31,6 +31,9 @@ ARobot::ARobot(const FObjectInitializer& ObjectInitializer)
 	AimStartDistance = 150.0f;
 	bIsHittingMonster = false;
 	bIsShooting = false;
+
+	OutOfViewTime = 5.0f;
+	OutOfViewStartTime = OutOfViewTime;
 }
 
 void ARobot::BeginPlay()
@@ -39,6 +42,8 @@ void ARobot::BeginPlay()
 	{
 		Monster = (*MonsterItr);
 	}
+
+	//Respawn();
 }
 
 void ARobot::Tick(float DeltaSeconds)
@@ -46,6 +51,8 @@ void ARobot::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	TickLaser(DeltaSeconds);
+	//TickOutOfView(DeltaSeconds);
+
 	PrevLocation = GetActorLocation();
 }
 
@@ -168,3 +175,35 @@ void ARobot::TickLaser(float DeltaSeconds)
 
 }
 
+//void ARobot::TickOutOfView(float DeltaSeconds)
+//{
+//	float MinRecentTime = 0.01f;
+//	if (GetLastRenderTime() <= MinRecentTime)
+//	{
+//		OutOfViewTime -= DeltaSeconds;
+//		if (OutOfViewTime <= 0.0f)
+//		{
+//			OutOfViewTime = OutOfViewStartTime;
+//			Respawn();
+//		}
+//	}
+//}
+//
+//void ARobot::Respawn()
+//{
+//	float Radius = 500;
+//	if (!Monster)
+//	{
+//		for (TActorIterator<AMonster> MonsterItr(GetWorld()); MonsterItr; ++MonsterItr)
+//		{
+//			Monster = (*MonsterItr);
+//		}
+//		if (!Monster) return;
+//	}
+//
+//	FVector SpawnLoc = Monster->GetActorLocation();
+//	SpawnLoc.X = SpawnLoc.X + FMath::RandRange(-Radius, Radius);
+//	SpawnLoc.Y = SpawnLoc.Y + FMath::RandRange(-Radius, Radius);
+//	SpawnLoc.Z += 100;
+//	SetActorLocation(SpawnLoc);
+//}

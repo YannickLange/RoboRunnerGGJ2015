@@ -14,7 +14,7 @@ AMonster::AMonster(const FObjectInitializer& ObjectInitializer)
 	BashStartTime = BashTime;
 
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(40.0f, 40.0f);
 
 	// set our turn rates for input
 	BaseTurnRate = 10.f;
