@@ -155,7 +155,7 @@ void AMonster::Bash()
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
-		FVector BashVector = YawRotation.Vector() * 1300;
+		FVector BashVector = YawRotation.Vector() * 1800;
 		LaunchCharacter(BashVector, true, true);
 		UE_LOG(GGJ, Log, TEXT("BASH!!!"));
 	}
