@@ -61,6 +61,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
 	float Health;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = MYCat)
+	float BashTime;
 protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -75,5 +78,6 @@ public:
 
 private:
 	float StartStunValue;
+	float BashStartTime;
 };
 

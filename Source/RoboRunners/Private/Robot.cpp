@@ -46,6 +46,7 @@ void ARobot::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	TickLaser(DeltaSeconds);
+	PrevLocation = GetActorLocation();
 }
 
 void ARobot::SetupPlayerInputComponent(class UInputComponent* InputComponent)
@@ -113,8 +114,7 @@ void ARobot::ShootStop()
 
 void ARobot::TickLaser(float DeltaSeconds)
 {
-
-	if (AimLocation.X == 0 && AimLocation.Y == 0)
+	if (AimLocation.X == 0 && AimLocation.Y == 0 && PrevLocation == GetActorLocation())
 	{
 		return;
 	}
@@ -126,46 +126,43 @@ void ARobot::TickLaser(float DeltaSeconds)
 	FVector Direction = GetActorLocation() - AimWorldLocation;
 	Direction.Normalize();
 
-	if (bIsShooting)
+	AimEndLocation = AimWorldLocation + AimDistance * Direction;
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	FCollisionObjectQueryParams CollisionObjectParams;
+	if (GetWorld()->LineTraceSingle(HitResult, AimWorldLocation + (AimStartDistance * Direction), AimEndLocation, CollisionParams, CollisionObjectParams))
 	{
-		AimEndLocation = AimWorldLocation + AimDistance * Direction;
-
-		FHitResult HitResult;
-		FCollisionQueryParams CollisionParams;
-		FCollisionObjectQueryParams CollisionObjectParams;
-		if (GetWorld()->LineTraceSingle(HitResult, AimWorldLocation + (AimStartDistance * Direction), AimEndLocation, CollisionParams, CollisionObjectParams))
+		if (HitResult.GetActor()->GetActorClass()->IsChildOf(Monster->StaticClass()))
 		{
-			if (HitResult.GetActor()->GetActorClass()->IsChildOf(Monster->StaticClass()))
+			if (!bIsHittingMonster)
 			{
-				if (!bIsHittingMonster)
-				{
-					Monster->LaserHit(this, HitResult);
-					bIsHittingMonster = true;
-					UE_LOG(GGJ, Log, TEXT("hitting monster"));
-				}
+				Monster->LaserHit(this, HitResult);
+				bIsHittingMonster = true;
+				UE_LOG(GGJ, Log, TEXT("hitting monster"));
 			}
-			else
-			{
-				if (bIsHittingMonster)
-				{
-					Monster->RemoveLaserHit(this);
-					bIsHittingMonster = false;
-					UE_LOG(GGJ, Log, TEXT("not hitting monster"));
-				}
-			}
-
-
-			// Hit
-			AimEndLocation = HitResult.ImpactPoint;
 		}
 		else
 		{
 			if (bIsHittingMonster)
 			{
-				UE_LOG(GGJ, Log, TEXT("not hitting monster"));
 				Monster->RemoveLaserHit(this);
 				bIsHittingMonster = false;
+				UE_LOG(GGJ, Log, TEXT("not hitting monster"));
 			}
+		}
+
+
+		// Hit
+		AimEndLocation = HitResult.ImpactPoint;
+	}
+	else
+	{
+		if (bIsHittingMonster)
+		{
+			UE_LOG(GGJ, Log, TEXT("not hitting monster"));
+			Monster->RemoveLaserHit(this);
+			bIsHittingMonster = false;
 		}
 	}
 
